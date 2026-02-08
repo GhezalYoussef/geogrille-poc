@@ -57,9 +57,9 @@ export class AppComponent implements AfterViewInit {
   private initMap() {
     this.map = L.map('map').setView([48.8566, 2.3522], 12);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
     }).addTo(this.map);
 
     this.markersLayer.addTo(this.map);
@@ -119,28 +119,15 @@ export class AppComponent implements AfterViewInit {
     ).subscribe(data => this.renderMarkers(data));
   }
 
-  private traxIcon = L.divIcon({
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="38" height="38">
-      <!-- Chenille -->
-      <rect x="4" y="40" width="46" height="14" rx="7" ry="7" fill="#333"/>
-      <circle cx="12" cy="47" r="5" fill="#555"/><circle cx="12" cy="47" r="2.5" fill="#888"/>
-      <circle cx="27" cy="47" r="5" fill="#555"/><circle cx="27" cy="47" r="2.5" fill="#888"/>
-      <circle cx="42" cy="47" r="5" fill="#555"/><circle cx="42" cy="47" r="2.5" fill="#888"/>
-      <!-- Cabine -->
-      <rect x="24" y="20" width="22" height="20" rx="3" fill="#f5a623"/>
-      <rect x="28" y="23" width="14" height="10" rx="1" fill="#d4eeff"/>
-      <!-- Bras -->
-      <rect x="6" y="16" width="22" height="6" rx="2" fill="#f5a623" transform="rotate(-15 17 19)"/>
-      <!-- Godet -->
-      <path d="M2 22 L10 14 L14 20 L8 26 Z" fill="#e08e14"/>
-      <!-- Cheminee -->
-      <rect x="42" y="14" width="4" height="8" rx="1" fill="#555"/>
-      <ellipse cx="44" cy="13" rx="3" ry="2" fill="#999"/>
+  private grilleIcon = L.divIcon({
+    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 36" width="24" height="36">
+      <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z" fill="#1976d2"/>
+      <circle cx="12" cy="12" r="5" fill="#fff"/>
     </svg>`,
-    className: 'trax-marker',
-    iconSize: [38, 38],
-    iconAnchor: [19, 38],
-    popupAnchor: [0, -34]
+    className: 'grille-marker',
+    iconSize: [24, 36],
+    iconAnchor: [12, 36],
+    popupAnchor: [0, -32]
   });
 
   private renderMarkers(items: Grille[]) {
@@ -148,45 +135,37 @@ export class AppComponent implements AfterViewInit {
     const currentEmail = this.auth.userEmail;
 
     for (const g of items) {
-      const m = L.marker([g.lat, g.lng], { icon: this.traxIcon });
-      let popupContent = `<b>${g.title}</b><br/>Owner: ${g.ownerEmail}<br/>Prix/jour: ${g.pricePerDay ?? '-'}`;
+      const m = L.marker([g.lat, g.lng], { icon: this.grilleIcon });
+      const isOwner = this.isProprietaire && g.ownerEmail === currentEmail;
 
-      // Bouton Commander pour CHERCHEUR
+      let popup = `<div class="popup-grille"><b>${g.title}</b>`;
+      if (g.pricePerDay) popup += `<span class="popup-price">${g.pricePerDay} /jour</span>`;
+
       if (this.isChercheur) {
-        popupContent += `<br/><button class="btn-commander" data-grille-id="${g.id}">Commander</button>`;
+        popup += `<button class="btn-commander" data-grille-id="${g.id}">Commander</button>`;
       }
-
-      // Boutons Deplacer / Supprimer pour le PROPRIETAIRE de cette grille
-      if (this.isProprietaire && g.ownerEmail === currentEmail) {
-        popupContent += `<br/><div class="popup-owner-actions">`;
-        popupContent += `<button class="btn-move" data-grille-id="${g.id}">Deplacer</button>`;
-        popupContent += `<button class="btn-delete" data-grille-id="${g.id}">Supprimer</button>`;
-        popupContent += `</div>`;
+      if (isOwner) {
+        popup += `<div class="popup-actions">`;
+        popup += `<button class="btn-move" data-grille-id="${g.id}">Deplacer</button>`;
+        popup += `<button class="btn-delete" data-grille-id="${g.id}">Supprimer</button>`;
+        popup += `</div>`;
       }
+      popup += `</div>`;
 
-      m.bindPopup(popupContent);
+      m.bindPopup(popup);
 
       m.on('popupopen', () => {
-        // Commander
-        const btnCmd = document.querySelector(`.btn-commander[data-grille-id="${g.id}"]`);
-        if (btnCmd) {
-          btnCmd.addEventListener('click', () => this.commander(g.id));
-        }
-        // Deplacer
-        const btnMove = document.querySelector(`.btn-move[data-grille-id="${g.id}"]`);
-        if (btnMove) {
-          btnMove.addEventListener('click', () => {
+        document.querySelector(`.btn-commander[data-grille-id="${g.id}"]`)
+          ?.addEventListener('click', () => this.commander(g.id));
+        document.querySelector(`.btn-move[data-grille-id="${g.id}"]`)
+          ?.addEventListener('click', () => {
             this.moveGrilleId = g.id;
             this.addMode = false;
             this.map.closePopup();
             alert('Clique sur la carte pour deplacer la grille.');
           });
-        }
-        // Supprimer
-        const btnDel = document.querySelector(`.btn-delete[data-grille-id="${g.id}"]`);
-        if (btnDel) {
-          btnDel.addEventListener('click', () => this.deleteGrille(g.id));
-        }
+        document.querySelector(`.btn-delete[data-grille-id="${g.id}"]`)
+          ?.addEventListener('click', () => this.deleteGrille(g.id));
       });
 
       m.addTo(this.markersLayer);
