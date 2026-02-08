@@ -1,5 +1,5 @@
 {
-  "name": "geogrille-front-app",
+  "name": "geogrille-front",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",

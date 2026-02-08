@@ -11,6 +11,6 @@ Thumbs.db
 geogrille-back/target/
 
 # Frontend
-geogrille-front/geogrille-front-app/node_modules/
-geogrille-front/geogrille-front-app/dist/
-geogrille-front/geogrille-front-app/.angular/
+geogrille-front/node_modules/
+geogrille-front/dist/
+geogrille-front/.angular/
