@@ -1,0 +1,96 @@
+<div class="topbar">
+  <!-- Non connecte : boutons pour ouvrir les modales -->
+  <div class="auth-buttons" *ngIf="!isLoggedIn">
+    <button class="btn-register" (click)="showRegisterModal = true">S'enregistrer</button>
+    <button class="btn-login" (click)="showLoginModal = true">Se connecter</button>
+  </div>
+
+  <!-- Connecte : profil utilisateur -->
+  <div class="user-profile" *ngIf="isLoggedIn">
+    <div class="avatar">{{ auth.userEmail?.charAt(0)?.toUpperCase() }}</div>
+    <div class="profile-details">
+      <span class="user-name">{{ auth.userEmail }}</span>
+      <span class="user-role-badge" [class.role-proprietaire]="isProprietaire" [class.role-chercheur]="isChercheur">
+        {{ auth.userRole }}
+      </span>
+    </div>
+    <button class="btn-logout" (click)="logout()">Deconnexion</button>
+  </div>
+
+  <!-- PROPRIETAIRE : formulaire creation grille -->
+  <div class="create" *ngIf="isProprietaire">
+    <input [(ngModel)]="title" placeholder="Titre grille" />
+    <input [(ngModel)]="price" placeholder="Prix/jour" type="number" />
+    <button (click)="enableAddMode()">Ajouter sur la carte</button>
+  </div>
+
+  <!-- CHERCHEUR : bouton mes commandes -->
+  <div class="orders-toggle" *ngIf="isChercheur">
+    <button (click)="toggleOrders()">Mes Commandes</button>
+  </div>
+</div>
+
+<!-- MODALE REGISTER -->
+<div class="modal-overlay" *ngIf="showRegisterModal" (click)="showRegisterModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Creer un compte</h2>
+      <button class="modal-close" (click)="showRegisterModal = false">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label>Email</label>
+      <input [(ngModel)]="regEmail" placeholder="votre@email.com" type="email" />
+
+      <label>Mot de passe</label>
+      <input [(ngModel)]="regPassword" placeholder="Mot de passe" type="password" />
+
+      <label>Profil</label>
+      <div class="role-selector">
+        <div class="role-option" [class.selected]="selectedRole === 'PROPRIETAIRE'" (click)="selectedRole = 'PROPRIETAIRE'">
+          <div class="role-icon">P</div>
+          <div class="role-label">Proprietaire</div>
+          <div class="role-desc">Placer des grilles sur la carte</div>
+        </div>
+        <div class="role-option" [class.selected]="selectedRole === 'CHERCHEUR'" (click)="selectedRole = 'CHERCHEUR'">
+          <div class="role-icon">C</div>
+          <div class="role-label">Chercheur</div>
+          <div class="role-desc">Localiser et commander des grilles</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" (click)="register()">S'enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE LOGIN -->
+<div class="modal-overlay" *ngIf="showLoginModal" (click)="showLoginModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Connexion</h2>
+      <button class="modal-close" (click)="showLoginModal = false">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label>Email</label>
+      <input [(ngModel)]="loginEmail" placeholder="votre@email.com" type="email" />
+
+      <label>Mot de passe</label>
+      <input [(ngModel)]="loginPassword" placeholder="Mot de passe" type="password" />
+
+      <button class="btn-primary" (click)="login()">Se connecter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panneau commandes CHERCHEUR -->
+<div class="orders-panel" *ngIf="isChercheur && showOrders">
+  <h3>Mes Commandes</h3>
+  <div *ngIf="orders.length === 0" class="no-orders">Aucune commande</div>
+  <div *ngFor="let o of orders" class="order-item">
+    <strong>{{ o.grilleTitle }}</strong>
+    <span>Prix: {{ o.priceSnapshot ?? '-' }} /jour</span>
+    <span class="order-date">{{ o.orderDate | date:'short' }}</span>
+  </div>
+</div>
+
+<div id="map"></div>

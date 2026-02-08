@@ -1,0 +1,18 @@
+<div class="topbar">
+  <div class="auth">
+    <input [(ngModel)]="email" placeholder="email" />
+    <input [(ngModel)]="password" placeholder="password" type="password" />
+    <button (click)="register()">Register</button>
+    <button (click)="login()">Login</button>
+    <button (click)="logout()">Logout</button>
+  </div>
+
+  <div class="create">
+    <input [(ngModel)]="title" placeholder="Titre grille" />
+    <input [(ngModel)]="price" placeholder="Prix/jour" type="number" />
+    <button (click)="enableAddMode()">Ajouter sur la carte</button>
+    <button (click)="reload()">Recharger</button>
+  </div>
+</div>
+
+<div id="map"></div>

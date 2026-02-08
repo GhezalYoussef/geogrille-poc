@@ -1,0 +1,271 @@
+.topbar {
+  display: flex;
+  gap: 16px;
+  padding: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  z-index: 500;
+  position: relative;
+}
+
+#map {
+  height: calc(100vh - 56px);
+}
+
+input, select { padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
+button { padding: 6px 12px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background: #f5f5f5; }
+button:hover { background: #e8e8e8; }
+
+/* --- Boutons auth (non connecte) --- */
+.auth-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-register {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  font-weight: 500;
+
+  &:hover { background: #1565c0; }
+}
+
+.btn-login {
+  background: #fff;
+  color: #1976d2;
+  border: 2px solid #1976d2;
+  font-weight: 500;
+
+  &:hover { background: #e3f2fd; }
+}
+
+/* --- Profil utilisateur (connecte) --- */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1976d2;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-name {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.user-role-badge {
+  font-size: 11px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.role-proprietaire {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.role-chercheur {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.btn-logout {
+  font-size: 13px;
+  color: #888;
+  background: none;
+  border: none;
+
+  &:hover { color: #d32f2f; background: none; }
+}
+
+/* --- Modal overlay --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 10px;
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+  }
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #888;
+  cursor: pointer;
+  padding: 0 4px;
+
+  &:hover { color: #333; background: none; }
+}
+
+.modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  label {
+    font-weight: 500;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: -4px;
+  }
+
+  input {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
+
+.btn-primary {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 6px;
+  margin-top: 6px;
+
+  &:hover { background: #1565c0; }
+}
+
+/* --- Role selector dans la modale register --- */
+.role-selector {
+  display: flex;
+  gap: 10px;
+}
+
+.role-option {
+  flex: 1;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s;
+
+  &:hover { border-color: #90caf9; }
+
+  &.selected {
+    border-color: #1976d2;
+    background: #e3f2fd;
+  }
+}
+
+.role-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1976d2;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+  margin: 0 auto 6px;
+}
+
+.role-label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.role-desc {
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
+}
+
+/* --- Panneau commandes --- */
+.orders-panel {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  min-width: 280px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  h3 {
+    margin: 0 0 8px;
+  }
+
+  .no-orders {
+    color: #888;
+    font-style: italic;
+  }
+
+  .order-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .order-date {
+      font-size: 0.85em;
+      color: #666;
+    }
+  }
+}

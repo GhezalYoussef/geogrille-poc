@@ -1,0 +1,16 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backend
+geogrille-back/target/
+
+# Frontend
+geogrille-front/geogrille-front-app/node_modules/
+geogrille-front/geogrille-front-app/dist/
+geogrille-front/geogrille-front-app/.angular/

@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/geogrille
+    username: geogrille
+    password: geogrille
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+app:
+  jwt:
+    # IMPORTANT: change this in real projects (must be >= 32 chars for HS256 key)
+    secret: "CHANGE_ME_SUPER_SECRET_KEY_32_CHARS_MINIMUM"
+    expirationMs: 86400000
