@@ -1,6 +1,10 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import * as L from 'leaflet';
 import { AuthService } from './services/auth.service';
 import { GrilleService, Grille } from './services/grille.service';
@@ -9,7 +13,8 @@ import { OrderService, Order } from './services/order.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ToastModule, ConfirmDialogModule],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -43,7 +48,13 @@ export class AppComponent implements AfterViewInit {
   private markersLayer = L.layerGroup();
   private addMode = false;
 
-  constructor(public auth: AuthService, private grilles: GrilleService, private orderService: OrderService) {}
+  constructor(
+    public auth: AuthService,
+    private grilles: GrilleService,
+    private orderService: OrderService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
+  ) {}
 
   get isLoggedIn() { return this.auth.isLoggedIn; }
   get isProprietaire() { return this.auth.isProprietaire; }
@@ -74,7 +85,7 @@ export class AppComponent implements AfterViewInit {
         this.moveGrilleId = null;
         this.grilles.update(id, { lat, lng }).subscribe({
           next: () => this.reload(),
-          error: (err) => alert('Erreur deplacement: ' + (err?.error?.message ?? ''))
+          error: (err) => this.messageService.add({ severity: 'error', summary: 'Erreur deplacement', detail: err?.error?.message ?? '' })
         });
         return;
       }
@@ -92,7 +103,7 @@ export class AppComponent implements AfterViewInit {
           this.addMode = false;
           this.reload();
         },
-        error: (err) => alert('Erreur create: ' + (err?.error?.message ?? ''))
+        error: (err) => this.messageService.add({ severity: 'error', summary: 'Erreur creation', detail: err?.error?.message ?? '' })
       });
     });
 
@@ -102,7 +113,7 @@ export class AppComponent implements AfterViewInit {
   enableAddMode() {
     this.addMode = true;
     this.moveGrilleId = null;
-    alert('Clique sur la carte pour placer la grille.');
+    this.messageService.add({ severity: 'info', summary: 'Placer la grille', detail: 'Clique sur la carte pour placer la grille.' });
   }
 
   reload() {
@@ -162,7 +173,7 @@ export class AppComponent implements AfterViewInit {
             this.moveGrilleId = g.id;
             this.addMode = false;
             this.map.closePopup();
-            alert('Clique sur la carte pour deplacer la grille.');
+            this.messageService.add({ severity: 'info', summary: 'Deplacer la grille', detail: 'Clique sur la carte pour deplacer la grille.' });
           });
         document.querySelector(`.btn-delete[data-grille-id="${g.id}"]`)
           ?.addEventListener('click', () => this.deleteGrille(g.id));
@@ -173,20 +184,26 @@ export class AppComponent implements AfterViewInit {
   }
 
   deleteGrille(id: number) {
-    if (!confirm('Supprimer cette grille ?')) return;
-    this.grilles.delete(id).subscribe({
-      next: () => this.reload(),
-      error: (err) => alert('Erreur suppression: ' + (err?.error?.message ?? ''))
+    this.confirmationService.confirm({
+      message: 'Supprimer cette grille ?',
+      header: 'Confirmation suppression',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.grilles.delete(id).subscribe({
+          next: () => this.reload(),
+          error: (err) => this.messageService.add({ severity: 'error', summary: 'Erreur suppression', detail: err?.error?.message ?? '' })
+        });
+      }
     });
   }
 
   commander(grilleId: number) {
     this.orderService.createOrder(grilleId).subscribe({
       next: () => {
-        alert('Commande effectuee !');
+        this.messageService.add({ severity: 'success', summary: 'Commande confirmee', detail: 'Commande effectuee !' });
         this.loadOrders();
       },
-      error: (err) => alert('Erreur commande: ' + (err?.error?.message ?? ''))
+      error: (err) => this.messageService.add({ severity: 'error', summary: 'Erreur commande', detail: err?.error?.message ?? '' })
     });
   }
 
@@ -200,20 +217,20 @@ export class AppComponent implements AfterViewInit {
   loadOrders() {
     this.orderService.myOrders().subscribe({
       next: (data) => this.orders = data,
-      error: (err) => alert('Erreur chargement commandes: ' + (err?.error?.message ?? ''))
+      error: (err) => this.messageService.add({ severity: 'error', summary: 'Erreur chargement', detail: err?.error?.message ?? '' })
     });
   }
 
   register() {
     this.auth.register(this.regEmail, this.regPassword, this.selectedRole).subscribe({
       next: () => {
-        alert('Compte cree avec succes ! Vous pouvez maintenant vous connecter.');
+        this.messageService.add({ severity: 'success', summary: 'Inscription reussie', detail: 'Compte cree avec succes ! Vous pouvez maintenant vous connecter.' });
         this.showRegisterModal = false;
         this.loginEmail = this.regEmail;
         this.regEmail = '';
         this.regPassword = '';
       },
-      error: (err) => alert('Erreur inscription: ' + (err?.error?.message ?? ''))
+      error: (err) => this.messageService.add({ severity: 'error', summary: 'Erreur inscription', detail: err?.error?.message ?? '' })
     });
   }
 
@@ -224,7 +241,7 @@ export class AppComponent implements AfterViewInit {
         this.loginPassword = '';
         this.reload();
       },
-      error: (err) => alert('Erreur connexion: ' + (err?.error?.message ?? ''))
+      error: (err) => this.messageService.add({ severity: 'error', summary: 'Erreur connexion', detail: err?.error?.message ?? '' })
     });
   }
 
