@@ -4,9 +4,6 @@ on:
   push:
     branches: [main]
 
-env:
-  REGISTRY: ghcr.io
-
 jobs:
   # ─── Job 1 : Build & Push images Docker ─────────────────────────────────────
   build:
@@ -20,36 +17,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set lowercase owner
-        run: echo "OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # ── Backend ──────────────────────────────────────────────────────────────
       - name: Build & Push backend
         uses: docker/build-push-action@v5
         with:
           context: ./geogrille-back
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.OWNER }}/geogrille-backend:latest
+          tags: ghcr.io/ghezalyoussef/geogrille-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # ── Frontend ─────────────────────────────────────────────────────────────
       - name: Build & Push frontend
         uses: docker/build-push-action@v5
         with:
           context: ./geogrille-front
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.OWNER }}/geogrille-frontend:latest
+          tags: ghcr.io/ghezalyoussef/geogrille-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -68,17 +60,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/geogrille-poc
-
-            # Connexion au registre GitHub
             echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ghezalyoussef --password-stdin
-
-            # Récupérer les nouvelles images
             docker compose -f docker-compose.prod.yml pull
-
-            # Redémarrer les services avec les nouvelles images
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
-
-            # Nettoyer les anciennes images
             docker image prune -f
-
             echo "✔ Déploiement terminé"
