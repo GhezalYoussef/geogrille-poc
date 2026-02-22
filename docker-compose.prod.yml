@@ -11,7 +11,7 @@ services:
     restart: unless-stopped
 
   backend:
-    build: ./geogrille-back
+    image: ghcr.io/ghezalyoussef/geogrille-backend:latest
     container_name: geogrille-backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/geogrille
@@ -23,7 +23,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    build: ./geogrille-front
+    image: ghcr.io/ghezalyoussef/geogrille-frontend:latest
     container_name: geogrille-frontend
     ports:
       - "80:80"
