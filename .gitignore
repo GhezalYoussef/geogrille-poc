@@ -14,3 +14,4 @@ geogrille-back/target/
 geogrille-front/node_modules/
 geogrille-front/dist/
 geogrille-front/.angular/
+.env
